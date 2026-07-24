@@ -1,0 +1,25 @@
+replicaCount: 2
+
+image:
+  tag: "0.1.0"
+  pullPolicy: Always
+
+ingress:
+  host: autonomous-ai-company.example.com
+  tlsSecretName: autonomous-ai-company-tls
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 75
+

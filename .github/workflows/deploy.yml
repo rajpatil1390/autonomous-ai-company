@@ -1,0 +1,237 @@
+name: Reusable Production Deployment
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        description: Immutable GitHub Release tag to publish and deploy
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Build, verify, sign, and deploy
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - production-vpc
+    environment: production
+    timeout-minutes: 60
+    concurrency:
+      group: production-deployment
+      cancel-in-progress: false
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+      EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      HELM_RELEASE: autonomous-ai-company
+      HELM_NAMESPACE: autonomous-ai-company
+      HELM_CHART: ./helm/autonomous-ai-company
+      HELM_VALUES: ./helm/autonomous-ai-company/values-prod.yaml
+      IMAGE_TAG: ${{ inputs.image_tag }}
+      PRODUCTION_BASE_URL: ${{ vars.PRODUCTION_BASE_URL }}
+      SMOKE_USERNAME: ${{ secrets.SMOKE_USERNAME }}
+      SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+      PYTHON_VERSION: "3.12"
+      RUFF_VERSION: "0.15.20"
+
+    steps:
+      - name: Check out immutable release source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.image_tag }}
+          persist-credentials: false
+
+      - name: Validate deployment inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "${IMAGE_TAG}" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([._-][0-9A-Za-z.-]+)?$ ]]
+          test -n "${AWS_REGION}"
+          test -n "${AWS_ROLE_ARN}"
+          test -n "${EKS_CLUSTER_NAME}"
+          test -n "${ECR_REPOSITORY}"
+          test -n "${PRODUCTION_BASE_URL}"
+
+      - name: Build production image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build \
+            --target production \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --label "org.opencontainers.image.version=${IMAGE_TAG}" \
+            --tag "autonomous-ai-company:${IMAGE_TAG}" \
+            .
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install project verification dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ".[test]" "pytest-cov>=7,<8" "ruff==${RUFF_VERSION}"
+
+      - name: Run complete test suite
+        run: >-
+          pytest
+          --cov=autonomous_ai_company
+          --cov-branch
+          --cov-report=term-missing
+          --cov-fail-under=100
+
+      - name: Run Ruff
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: autonomous-ai-company:${{ inputs.image_tag }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Sign and verify scanned image archive before publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker save \
+            --output "${RUNNER_TEMP}/autonomous-ai-company.tar" \
+            "autonomous-ai-company:${IMAGE_TAG}"
+          cosign sign-blob --yes \
+            --bundle "${RUNNER_TEMP}/autonomous-ai-company.bundle" \
+            "${RUNNER_TEMP}/autonomous-ai-company.tar"
+          cosign verify-blob \
+            --bundle "${RUNNER_TEMP}/autonomous-ai-company.bundle" \
+            --certificate-identity-regexp "^https://github.com/${GITHUB_REPOSITORY}/.github/workflows/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${RUNNER_TEMP}/autonomous-ai-company.tar"
+
+      - name: Configure short-lived AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: autonomous-ai-company-release
+
+      - name: Sign in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@4625ce35226a7557230889aae2f52eb50ec3dcda # v2.0.1
+        with:
+          mask-password: true
+
+      - name: Push immutable image to ECR
+        id: publish
+        shell: bash
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          set -euo pipefail
+          IMAGE_URI="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          docker tag "autonomous-ai-company:${IMAGE_TAG}" "${IMAGE_URI}"
+          DIGEST="$(
+            aws ecr describe-images \
+              --repository-name "${ECR_REPOSITORY}" \
+              --image-ids "imageTag=${IMAGE_TAG}" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2>/dev/null || true
+          )"
+          if [[ ! "${DIGEST}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            PUSH_OUTPUT="$(docker push "${IMAGE_URI}")"
+            DIGEST="$(printf '%s\n' "${PUSH_OUTPUT}" | awk '/digest:/ {print $2}' | tail -1)"
+          fi
+          [[ "${DIGEST}" =~ ^sha256:[0-9a-f]{64}$ ]]
+          echo "image_uri=${IMAGE_URI}" >> "${GITHUB_OUTPUT}"
+          echo "image_digest=${DIGEST}" >> "${GITHUB_OUTPUT}"
+          echo "signed_reference=${ECR_REGISTRY}/${ECR_REPOSITORY}@${DIGEST}" >> "${GITHUB_OUTPUT}"
+
+      - name: Sign and verify published image with GitHub OIDC
+        shell: bash
+        env:
+          SIGNED_REFERENCE: ${{ steps.publish.outputs.signed_reference }}
+        run: |
+          set -euo pipefail
+          cosign sign --yes "${SIGNED_REFERENCE}"
+          cosign verify \
+            --certificate-identity-regexp "^https://github.com/${GITHUB_REPOSITORY}/.github/workflows/" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "${SIGNED_REFERENCE}"
+
+      - name: Configure kubectl for private EKS
+        run: >-
+          aws eks update-kubeconfig
+          --region "${AWS_REGION}"
+          --name "${EKS_CLUSTER_NAME}"
+          --alias autonomous-ai-company-production
+
+      - name: Verify Helm is available
+        run: helm version --short
+
+      - name: Deploy signed image with atomic Helm upgrade
+        id: helm-deploy
+        continue-on-error: true
+        shell: bash
+        env:
+          IMAGE_REPOSITORY: ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+        run: >-
+          bash ./scripts/deploy.sh
+          "${HELM_RELEASE}"
+          "${HELM_NAMESPACE}"
+          "${HELM_CHART}"
+          "${HELM_VALUES}"
+          "${IMAGE_REPOSITORY}"
+          "${IMAGE_TAG}"
+
+      - name: Run authenticated production smoke tests
+        id: smoke-tests
+        if: steps.helm-deploy.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: >-
+          bash ./scripts/smoke_test.sh
+          "${PRODUCTION_BASE_URL}"
+
+      - name: Roll back failed deployment
+        if: >-
+          always() &&
+          (steps.helm-deploy.outcome == 'failure' ||
+          steps.smoke-tests.outcome == 'failure')
+        shell: bash
+        run: >-
+          bash ./scripts/rollback.sh
+          "${HELM_RELEASE}"
+          "${HELM_NAMESPACE}"
+          "${{ steps.helm-deploy.outputs.previous_revision }}"
+
+      - name: Fail release after rollback
+        if: >-
+          always() &&
+          (steps.helm-deploy.outcome == 'failure' ||
+          steps.smoke-tests.outcome == 'failure')
+        run: |
+          echo "Production deployment failed and rollback protection was invoked."
+          exit 1
+
+      - name: Record successful deployment
+        if: >-
+          steps.helm-deploy.outcome == 'success' &&
+          steps.smoke-tests.outcome == 'success'
+        run: |
+          echo "Deployed ${IMAGE_TAG} to ${HELM_NAMESPACE}." >> "${GITHUB_STEP_SUMMARY}"
+          echo "Image digest: ${{ steps.publish.outputs.image_digest }}" >> "${GITHUB_STEP_SUMMARY}"

@@ -1,0 +1,23 @@
+name: Production Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy published release
+    uses: ./.github/workflows/deploy.yml
+    with:
+      image_tag: ${{ github.event.release.tag_name }}
+    secrets: inherit
+

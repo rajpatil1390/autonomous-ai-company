@@ -1,0 +1,9 @@
+# Repository policy consumed and validated by the OSV workflow job.
+schema_version: 1
+scan_path: .
+recursive: true
+output_format: json
+output_file: results/osv.json
+fail_on_vulnerability: true
+ignored_vulnerabilities: []
+

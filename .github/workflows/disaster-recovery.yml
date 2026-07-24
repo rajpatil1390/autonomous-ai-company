@@ -1,0 +1,180 @@
+name: Disaster Recovery Asset Validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: disaster-recovery-asset-validation
+  cancel-in-progress: true
+
+jobs:
+  validate-scripts:
+    name: Validate backup and restore scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate shell syntax without execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dr-validation
+          for script in dr/backup/*.sh; do
+            bash -n "${script}"
+          done
+          printf '%s\n' \
+            'postgres-backup.sh: syntax valid' \
+            'postgres-restore.sh: syntax valid' \
+            'verify-backup.sh: syntax valid' \
+            >dr-validation/scripts.txt
+
+  validate-manifests:
+    name: Validate suspended Kubernetes templates
+    needs: validate-scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install YAML parser
+        run: python -m pip install "PyYAML==6.0.3"
+
+      - name: Validate schedule and disabled restore
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dr-validation
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import yaml
+
+          backup = yaml.safe_load(
+              Path("dr/kubernetes/backup-cronjob.yaml").read_text(encoding="utf-8")
+          )
+          restore = yaml.safe_load(
+              Path("dr/kubernetes/restore-job.yaml").read_text(encoding="utf-8")
+          )
+          assert backup["apiVersion"] == "batch/v1"
+          assert backup["kind"] == "CronJob"
+          assert backup["metadata"]["namespace"] == "autonomous-ai-company"
+          assert backup["spec"]["schedule"] == "0 2 * * *"
+          assert backup["spec"]["timeZone"] == "Etc/UTC"
+          assert backup["spec"]["suspend"] is True
+          assert backup["spec"]["concurrencyPolicy"] == "Forbid"
+          assert restore["apiVersion"] == "batch/v1"
+          assert restore["kind"] == "Job"
+          assert restore["metadata"]["namespace"] == "autonomous-ai-company"
+          assert restore["spec"]["suspend"] is True
+          env = {
+              item["name"]: item.get("value")
+              for item in restore["spec"]["template"]["spec"]["containers"][0]["env"]
+          }
+          assert env["ALLOW_POSTGRES_RESTORE"] == "DISABLED"
+          assert env["RESTORE_CONFIRM_DATABASE"] == "DISABLED"
+          Path("dr-validation/manifests.json").write_text(
+              json.dumps(
+                  {
+                      "backup_schedule": backup["spec"]["schedule"],
+                      "backup_suspended": backup["spec"]["suspend"],
+                      "restore_suspended": restore["spec"]["suspend"],
+                  },
+                  indent=2,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+  validate-documentation:
+    name: Validate recovery documentation
+    needs: validate-manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate runbook completeness
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dr-validation
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          headings = (
+              "Detection",
+              "Immediate response",
+              "Recovery steps",
+              "Validation",
+              "Rollback",
+              "Communication checklist",
+          )
+          records = []
+          for path in sorted(Path("dr/runbooks").glob("*.md")):
+              text = path.read_text(encoding="utf-8")
+              for heading in headings:
+                  assert f"## {heading}" in text
+              records.append(path.name)
+          assert len(records) == 5
+          policy = Path("docs/disaster-recovery.md").read_text(encoding="utf-8")
+          for heading in (
+              "Recovery objectives",
+              "Backup schedule",
+              "Retention schedule",
+              "Restore verification process",
+              "Recovery testing schedule",
+          ):
+              assert f"## {heading}" in policy
+          Path("dr-validation/documentation.json").write_text(
+              json.dumps({"runbooks": records}, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+  upload-artifacts:
+    name: Upload validated recovery assets
+    needs:
+      - validate-scripts
+      - validate-manifests
+      - validate-documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Upload backup, restore, and recovery definitions
+        uses: actions/upload-artifact@v6
+        with:
+          name: validated-disaster-recovery-assets
+          path: |
+            dr/backup/*.sh
+            dr/kubernetes/*.yaml
+            dr/runbooks/*.md
+            docs/disaster-recovery.md
+          if-no-files-found: error
+          retention-days: 30
+

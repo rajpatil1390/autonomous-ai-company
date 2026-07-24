@@ -1,0 +1,6 @@
+apiVersion: v2
+name: autonomous-ai-company
+description: Kubernetes deployment chart for the Autonomous AI Company API
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

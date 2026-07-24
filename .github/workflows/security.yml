@@ -1,0 +1,367 @@
+name: Production Security
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  PIP_AUDIT_VERSION: "2.10.1"
+  BANDIT_VERSION: "1.9.4"
+  SEMGREP_VERSION: "1.168.0"
+  SYFT_VERSION: "v1.44.0"
+
+jobs:
+  dependency-audit:
+    name: 1 - Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install project and pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install . "pip-audit==${PIP_AUDIT_VERSION}"
+
+      - name: Audit installed dependencies
+        run: |
+          mkdir -p results
+          pip-audit --local --format json --output results/pip-audit.json
+
+      - name: Upload pip-audit report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: pip-audit-report
+          path: results/pip-audit.json
+          if-no-files-found: error
+          retention-days: 30
+
+  filesystem-scan:
+    name: 2 - Trivy Filesystem Scan
+    needs: dependency-audit
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Create report directory
+        run: mkdir -p results
+
+      - name: Scan repository with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: fs
+          scan-ref: .
+          trivy-config: security/trivy.yaml
+          format: json
+          output: results/trivy-filesystem.json
+          exit-code: "1"
+
+      - name: Upload Trivy filesystem report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: trivy-filesystem-report
+          path: results/trivy-filesystem.json
+          if-no-files-found: error
+          retention-days: 30
+
+  container-scan:
+    name: 3 - Trivy Container Scan
+    needs: filesystem-scan
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Build local production image
+        run: |
+          mkdir -p results
+          docker build \
+            --target production \
+            --tag "autonomous-ai-company:security-${GITHUB_SHA}" \
+            .
+
+      - name: Scan production image with Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: image
+          image-ref: autonomous-ai-company:security-${{ github.sha }}
+          trivy-config: security/trivy.yaml
+          format: json
+          output: results/trivy-container.json
+          exit-code: "1"
+
+      - name: Upload Trivy container report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: trivy-container-report
+          path: results/trivy-container.json
+          if-no-files-found: error
+          retention-days: 30
+
+  bandit:
+    name: 4 - Bandit Python Analysis
+    needs: container-scan
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install Bandit
+        run: python -m pip install "bandit==${BANDIT_VERSION}"
+
+      - name: Run Bandit
+        run: |
+          mkdir -p results
+          bandit \
+            --configfile security/bandit.yaml \
+            --recursive src \
+            --format json \
+            --output results/bandit.json
+
+      - name: Upload Bandit report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: bandit-report
+          path: results/bandit.json
+          if-no-files-found: error
+          retention-days: 30
+
+  semgrep:
+    name: 5 - Semgrep Semantic Analysis
+    needs: bandit
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install Semgrep
+        run: python -m pip install "semgrep==${SEMGREP_VERSION}"
+
+      - name: Run local and maintained Semgrep policies
+        run: |
+          mkdir -p results
+          semgrep scan \
+            --config security/semgrep.yaml \
+            --config p/python \
+            --config p/security-audit \
+            --json \
+            --output results/semgrep.json \
+            --error \
+            src
+
+      - name: Upload Semgrep report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: semgrep-report
+          path: results/semgrep.json
+          if-no-files-found: error
+          retention-days: 30
+
+  sbom:
+    name: 6 - Syft SBOM
+    needs: semgrep
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install pinned Syft
+        id: syft
+        uses: anchore/sbom-action/download-syft@f8bdd1d8ac5e901a77a92f111440fdb1b593736b
+        with:
+          syft-version: ${{ env.SYFT_VERSION }}
+
+      - name: Generate SPDX and CycloneDX SBOMs
+        run: |
+          mkdir -p results
+          "${{ steps.syft.outputs.cmd }}" scan dir:. \
+            --config security/syft.yaml \
+            --output spdx-json=results/sbom.spdx.json \
+            --output cyclonedx-json=results/sbom.cyclonedx.json
+
+      - name: Upload SBOM artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: software-bills-of-materials
+          path: |
+            results/sbom.spdx.json
+            results/sbom.cyclonedx.json
+          if-no-files-found: error
+          retention-days: 90
+
+  osv-scan:
+    name: 7 - OSV Dependency Scan
+    needs: sbom
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python for policy validation
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install YAML policy parser
+        run: python -m pip install "PyYAML==6.0.3"
+
+      - name: Validate OSV policy and create report directory
+        run: |
+          mkdir -p results
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          policy = yaml.safe_load(Path("security/osv-scanner.yaml").read_text())
+          assert policy["recursive"] is True
+          assert policy["output_format"] == "json"
+          assert policy["output_file"] == "results/osv.json"
+          assert policy["fail_on_vulnerability"] is True
+          assert policy["ignored_vulnerabilities"] == []
+          PY
+
+      - name: Scan dependency manifests with OSV-Scanner
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2
+        with:
+          scan-args: |-
+            --recursive
+            --format=json
+            --output=results/osv.json
+            ./
+
+      - name: Upload OSV report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: osv-scanner-report
+          path: results/osv.json
+          if-no-files-found: error
+          retention-days: 30
+
+  cosign-verification:
+    name: 8 - Cosign Signature Verification
+    needs: osv-scan
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_SECURITY_READ_ROLE_ARN }}
+      SECURITY_IMAGE_REFERENCE: ${{ vars.SECURITY_IMAGE_REFERENCE }}
+      COSIGN_TRUSTED_IDENTITY_REGEXP: ${{ vars.COSIGN_TRUSTED_IDENTITY_REGEXP }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate digest and trust inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          test -n "${AWS_REGION}"
+          test -n "${AWS_ROLE_ARN}"
+          test -n "${COSIGN_TRUSTED_IDENTITY_REGEXP}"
+          [[ "${SECURITY_IMAGE_REFERENCE}" =~ ^[^[:space:]]+@sha256:[0-9a-f]{64}$ ]]
+
+      - name: Configure read-only AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sign in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@4625ce35226a7557230889aae2f52eb50ec3dcda
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Verify keyless image signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          cosign verify \
+            --certificate-identity-regexp "${COSIGN_TRUSTED_IDENTITY_REGEXP}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            --output json \
+            "${SECURITY_IMAGE_REFERENCE}" \
+            | tee results/cosign-verification.json
+
+      - name: Upload Cosign verification report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: cosign-verification-report
+          path: results/cosign-verification.json
+          if-no-files-found: error
+          retention-days: 90

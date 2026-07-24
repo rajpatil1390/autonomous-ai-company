@@ -1,0 +1,44 @@
+# Source-control and container metadata
+.git
+.gitignore
+Dockerfile*
+docker-compose*.yml
+
+# Secrets and local environment configuration
+.env
+.env.*
+!.env.example
+
+# Python caches and virtual environments
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Test, coverage, and generated output
+.coverage
+coverage.xml
+htmlcov/
+reports/
+artifacts/
+logs/
+tests/
+
+# Local databases and notebook state
+*.db
+*.sqlite
+*.sqlite3
+.ipynb_checkpoints/
+
+# IDE, OS, and project-analysis output
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+graphify-out/
+CODEX.md
+README-docker.md

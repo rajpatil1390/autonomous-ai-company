@@ -1,0 +1,33 @@
+{
+  "dataset": [
+    {
+      "revenue": "100.00",
+      "cost": "60.00",
+      "customer_id": "customer-001",
+      "segment": "Enterprise"
+    },
+    {
+      "revenue": "150.00",
+      "cost": "80.00",
+      "customer_id": "customer-002",
+      "segment": "Small Business"
+    }
+  ],
+  "previous_dataset": [
+    {
+      "revenue": "80.00",
+      "cost": "50.00",
+      "customer_id": "customer-001",
+      "segment": "Enterprise"
+    }
+  ],
+  "data_scientist_series": [
+    10,
+    12,
+    15,
+    19,
+    24
+  ],
+  "business_context": "A subscription company is planning controlled growth.",
+  "executive_question": "Which strategic priority should be approved next?"
+}

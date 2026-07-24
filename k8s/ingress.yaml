@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: autonomous-ai-company-api
+  namespace: autonomous-ai-company
+  labels:
+    app.kubernetes.io/name: autonomous-ai-company
+    app.kubernetes.io/component: api
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - autonomous-ai-company.example.com
+      secretName: autonomous-ai-company-tls
+  rules:
+    - host: autonomous-ai-company.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: autonomous-ai-company-api
+                port:
+                  number: 8000

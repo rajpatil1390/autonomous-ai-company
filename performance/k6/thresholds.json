@@ -1,0 +1,62 @@
+{
+  "profiles": {
+    "smoke": {
+      "executor": "constant-vus",
+      "vus": 5,
+      "duration": "30s",
+      "gracefulStop": "5s"
+    },
+    "normal": {
+      "executor": "constant-vus",
+      "vus": 50,
+      "duration": "5m",
+      "gracefulStop": "30s"
+    },
+    "peak": {
+      "executor": "constant-vus",
+      "vus": 200,
+      "duration": "5m",
+      "gracefulStop": "30s"
+    },
+    "stress": {
+      "executor": "constant-vus",
+      "vus": 500,
+      "duration": "10m",
+      "gracefulStop": "1m"
+    },
+    "spike": {
+      "executor": "ramping-vus",
+      "startVUs": 0,
+      "stages": [
+        {"duration": "15s", "target": 500},
+        {"duration": "30s", "target": 500},
+        {"duration": "15s", "target": 0}
+      ],
+      "gracefulRampDown": "15s",
+      "gracefulStop": "30s"
+    }
+  },
+  "thresholds": {
+    "health_p95": {
+      "metric": "http_req_duration{endpoint:health}",
+      "limit": "p(95)<100"
+    },
+    "login_p95": {
+      "metric": "http_req_duration{endpoint:login}",
+      "limit": "p(95)<300"
+    },
+    "workflow_p95": {
+      "metric": "http_req_duration{endpoint:workflow}",
+      "limit": "p(95)<3000"
+    },
+    "error_rate": {
+      "metric": "http_req_failed",
+      "limit": "rate<0.01"
+    },
+    "successful_checks": {
+      "metric": "checks",
+      "limit": "rate>0.99"
+    }
+  }
+}
+

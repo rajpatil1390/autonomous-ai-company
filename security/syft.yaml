@@ -1,0 +1,12 @@
+# Reproducible, repository-local Syft configuration.
+check-for-app-update: false
+exclude:
+  - ./.git/**
+  - ./.venv/**
+  - ./artifacts/**
+  - ./htmlcov/**
+  - ./reports/**
+  - ./test-results/**
+package:
+  search-unindexed-archives: false
+

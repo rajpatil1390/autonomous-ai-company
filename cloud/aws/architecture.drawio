@@ -1,0 +1,40 @@
+<mxfile host="app.diagrams.net" modified="2026-07-15T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="aws-production" name="AWS Production">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="vpc" value="Production VPC (2+ AZs)" style="swimlane;horizontal=0;rounded=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="180" y="80" width="1180" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="public" value="Public subnets&#xa;IGW + NAT Gateways" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="vpc">
+          <mxGeometry x="40" y="80" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="eks" value="Private subnets&#xa;EKS managed nodes&#xa;Helm release" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="vpc">
+          <mxGeometry x="360" y="80" width="260" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="rds" value="Private subnets&#xa;RDS PostgreSQL&#xa;Multi-AZ + encrypted" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="vpc">
+          <mxGeometry x="760" y="80" width="260" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="endpoint" value="Secrets Manager&#xa;VPC endpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="vpc">
+          <mxGeometry x="360" y="300" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="monitor" value="AMP + Managed Grafana&#xa;OTLP placeholder" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="vpc">
+          <mxGeometry x="760" y="300" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ecr" value="Amazon ECR&#xa;immutable scanned images" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="10" y="270" width="150" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="github" value="GitHub Actions&#xa;OIDC CI/CD role" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="10" y="120" width="150" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-ci-ecr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" edge="1" parent="1" source="github" target="ecr"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="edge-ecr-eks" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" edge="1" parent="1" source="ecr" target="eks"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="edge-eks-rds" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" edge="1" parent="vpc" source="eks" target="rds"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="edge-eks-secrets" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" edge="1" parent="vpc" source="eks" target="endpoint"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="edge-eks-monitor" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" edge="1" parent="vpc" source="eks" target="monitor"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+

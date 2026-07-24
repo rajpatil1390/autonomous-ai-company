@@ -1,0 +1,151 @@
+name: Chaos Asset Validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chaos-asset-validation
+  cancel-in-progress: true
+
+jobs:
+  validate-manifests:
+    name: Validate stopped Litmus manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install YAML parser
+        run: python -m pip install "PyYAML==6.0.3"
+
+      - name: Validate manifest safety contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p chaos-validation
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import yaml
+
+          directory = Path("chaos/litmus")
+          records = []
+          for path in sorted(directory.glob("*.yaml")):
+              document = yaml.safe_load(path.read_text(encoding="utf-8"))
+              assert document["apiVersion"] == "litmuschaos.io/v1alpha1"
+              assert document["kind"] == "ChaosEngine"
+              assert document["metadata"]["namespace"] == "autonomous-ai-company"
+              spec = document["spec"]
+              assert spec["engineState"] == "stop"
+              assert spec["annotationCheck"] == "true"
+              assert spec["jobCleanUpPolicy"] == "retain"
+              assert spec["appinfo"]["appns"] == "autonomous-ai-company"
+              assert "app.kubernetes.io/component=api" in spec["appinfo"]["applabel"]
+              assert spec["chaosServiceAccount"] == "litmus-chaos-runner"
+              assert len(spec["experiments"]) == 1
+              env = {
+                  item["name"]: item["value"]
+                  for item in spec["experiments"][0]["spec"]["components"]["env"]
+              }
+              assert 0 < int(env["TOTAL_CHAOS_DURATION"]) <= 60
+              assert env["PODS_AFFECTED_PERC"] == "50"
+              records.append(
+                  {
+                      "file": path.name,
+                      "engine": document["metadata"]["name"],
+                      "experiment": spec["experiments"][0]["name"],
+                      "state": spec["engineState"],
+                  }
+              )
+          assert len(records) == 5
+          Path("chaos-validation/manifests.json").write_text(
+              json.dumps(records, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+  validate-scenarios:
+    name: Validate scenario and recovery documentation
+    needs: validate-manifests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate scenario contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p chaos-validation
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          required = {
+              "workflow.md": ("Preconditions", "Expected results", "Failure criteria"),
+              "rollback.md": ("Immediate stop", "Rollback failure criteria", "Completion"),
+              "recovery.md": ("Kubernetes recovery", "Application recovery", "Success criteria"),
+              "disaster.md": ("Authorization boundary", "Expected results", "Failure criteria"),
+          }
+          records = []
+          for name, headings in required.items():
+              path = Path("chaos/scenarios") / name
+              text = path.read_text(encoding="utf-8")
+              for heading in headings:
+                  assert f"## {heading}" in text
+              records.append({"file": name, "headings": list(headings)})
+          guide = Path("docs/chaos-engineering.md").read_text(encoding="utf-8")
+          for heading in (
+              "Prerequisites",
+              "Opt-in execution",
+              "Expected results and failure criteria",
+              "Rollback",
+              "Recovery validation",
+              "Observability",
+          ):
+              assert f"## {heading}" in guide
+          Path("chaos-validation/scenarios.json").write_text(
+              json.dumps(records, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+  upload-artifacts:
+    name: Upload validated chaos definitions
+    needs:
+      - validate-manifests
+      - validate-scenarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Upload chaos definitions and runbooks
+        uses: actions/upload-artifact@v6
+        with:
+          name: validated-chaos-engineering-assets
+          path: |
+            chaos/litmus/*.yaml
+            chaos/scenarios/*.md
+            docs/chaos-engineering.md
+          if-no-files-found: error
+          retention-days: 30
+

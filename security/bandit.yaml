@@ -1,0 +1,8 @@
+# Bandit scans production Python only; tests and generated output are excluded.
+exclude_dirs:
+  - tests
+  - .venv
+  - build
+  - dist
+skips: []
+

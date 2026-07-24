@@ -1,0 +1,20 @@
+aws_region  = "us-east-1"
+environment = "production"
+
+github_organization      = "REPLACE_WITH_GITHUB_ORGANIZATION"
+github_repository        = "Autonomous-AI-Company"
+github_deployment_branch = "main"
+
+terraform_operator_principal_arns = [
+  "arn:aws:iam::REPLACE_WITH_ACCOUNT_ID:role/REPLACE_WITH_OPERATOR_ROLE",
+]
+
+# This is an endpoint placeholder, not a credential.
+otlp_endpoint = "https://REPLACE_WITH_OTLP_COLLECTOR_ENDPOINT"
+
+# Never place passwords, API keys, tokens, or secret payloads in tfvars.
+additional_tags = {
+  Owner      = "platform-team"
+  CostCenter = "REPLACE_WITH_COST_CENTER"
+}
+

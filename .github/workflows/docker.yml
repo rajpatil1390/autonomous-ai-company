@@ -1,0 +1,72 @@
+name: Docker
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker:
+    name: Build container targets
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Detect Docker runtime
+        id: docker-runtime
+        shell: bash
+        run: |
+          if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+            echo "available=true" >> "${GITHUB_OUTPUT}"
+            echo "Docker runtime is available; image validation will run."
+          else
+            echo "available=false" >> "${GITHUB_OUTPUT}"
+            echo "Docker runtime is unavailable; image validation will be skipped."
+          fi
+
+      - name: Build production image
+        if: steps.docker-runtime.outputs.available == 'true'
+        run: >-
+          docker build
+          --target production
+          --tag autonomous-ai-company:ci-production
+          .
+
+      - name: Build development image
+        if: steps.docker-runtime.outputs.available == 'true'
+        run: >-
+          docker build
+          --target development
+          --tag autonomous-ai-company:ci-development
+          .
+
+      - name: Verify images use the non-root application user
+        if: steps.docker-runtime.outputs.available == 'true'
+        shell: bash
+        run: |
+          test "$(docker image inspect autonomous-ai-company:ci-production --format '{{.Config.User}}')" = "app"
+          test "$(docker image inspect autonomous-ai-company:ci-development --format '{{.Config.User}}')" = "app"
+          echo "Production and development image builds succeeded." >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Report unavailable Docker runtime
+        if: steps.docker-runtime.outputs.available != 'true'
+        shell: bash
+        run: |
+          echo "Docker validation skipped: no usable Docker runtime was detected." \
+            >> "${GITHUB_STEP_SUMMARY}"

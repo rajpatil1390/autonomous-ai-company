@@ -1,0 +1,148 @@
+name: Production Performance Smoke Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-performance-smoke
+  cancel-in-progress: false
+
+jobs:
+  performance-smoke:
+    name: Install tools, run smoke profile, and collect reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_URL: ${{ vars.PERFORMANCE_BASE_URL }}
+      PERF_USERNAME: ${{ secrets.PERFORMANCE_USERNAME }}
+      PERF_PASSWORD: ${{ secrets.PERFORMANCE_PASSWORD }}
+      LOAD_PROFILE: smoke
+      PERF_REQUEST_TIMEOUT_SECONDS: "45"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate target and protected credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${BASE_URL}"
+          test -n "${PERF_USERNAME}"
+          test -n "${PERF_PASSWORD}"
+          [[ "${BASE_URL}" =~ ^https://[^[:space:]]+$ ]]
+
+      - name: Install k6
+        uses: grafana/setup-k6-action@db07bd9765aac508ef18982e52ab937fe633a065
+        with:
+          k6-version: v2.0.0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Locust
+        run: python -m pip install "locust==2.44.4"
+
+      - name: Run k6 smoke profile
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p performance/reports/generated
+          result=0
+          for script in workflow login streaming metrics; do
+            if ! k6 run \
+              --out "json=performance/reports/generated/k6-${script}.json" \
+              -e "LOAD_PROFILE=${LOAD_PROFILE}" \
+              -e "SUMMARY_PATH=performance/reports/generated/k6-${script}-summary.json" \
+              "performance/k6/${script}.js"; then
+              result=1
+            fi
+          done
+          exit "${result}"
+
+      - name: Run Locust smoke profile
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          locust \
+            --locustfile performance/locust/locustfile.py \
+            --host "${BASE_URL}" \
+            --headless \
+            --users 5 \
+            --spawn-rate 1 \
+            --run-time 30s \
+            --stop-timeout 5 \
+            --html performance/reports/generated/locust.html \
+            --csv performance/reports/generated/locust \
+            --csv-full-history
+
+      - name: Collect summary statistics
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv
+          import json
+          from pathlib import Path
+
+          report_dir = Path("performance/reports/generated")
+          lines = ["# Performance smoke summary", ""]
+          for path in sorted(report_dir.glob("k6-*-summary.json")):
+              data = json.loads(path.read_text(encoding="utf-8"))
+              metrics = data.get("metrics", {})
+              duration = metrics.get("http_req_duration", {}).get("values", {})
+              failures = metrics.get("http_req_failed", {}).get("values", {})
+              lines.extend(
+                  [
+                      f"## {path.stem}",
+                      "",
+                      f"- HTTP P95 (ms): {duration.get('p(95)', 'unavailable')}",
+                      f"- HTTP failure rate: {failures.get('rate', 'unavailable')}",
+                      "",
+                  ]
+              )
+          stats_path = report_dir / "locust_stats.csv"
+          if stats_path.exists():
+              rows = list(csv.DictReader(stats_path.open(encoding="utf-8")))
+              aggregate = next(
+                  (row for row in rows if row.get("Name") == "Aggregated"),
+                  None,
+              )
+              lines.extend(["## Locust aggregate", ""])
+              if aggregate is None:
+                  lines.append("- Aggregate row unavailable")
+              else:
+                  lines.extend(
+                      [
+                          f"- Requests: {aggregate.get('Request Count', 'unavailable')}",
+                          f"- Failures: {aggregate.get('Failure Count', 'unavailable')}",
+                          f"- P95 (ms): {aggregate.get('95%', 'unavailable')}",
+                      ]
+                  )
+          (report_dir / "summary.md").write_text(
+              "\n".join(lines) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload performance artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: production-performance-smoke
+          path: |
+            performance/reports/generated/k6-*.json
+            performance/reports/generated/locust.html
+            performance/reports/generated/locust*.csv
+            performance/reports/generated/summary.md
+          if-no-files-found: error
+          retention-days: 30

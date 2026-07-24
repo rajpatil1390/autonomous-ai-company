@@ -1,0 +1,16 @@
+Install this chart:
+  helm install {{ .Release.Name }} ./helm/autonomous-ai-company --namespace {{ .Values.namespace.name }} --create-namespace
+
+Upgrade this release:
+  helm upgrade {{ .Release.Name }} ./helm/autonomous-ai-company --namespace {{ .Values.namespace.name }}
+
+Port-forward the API service:
+  kubectl --namespace {{ .Values.namespace.name }} port-forward service/{{ include "autonomous-ai-company.fullname" . }} 8000:{{ .Values.service.port }}
+
+Ingress URL:
+  https://{{ .Values.ingress.host }}
+
+The chart expects Secret {{ .Values.secret.name }} to exist. To inspect the
+placeholder Secret template without installing it, set secret.createExample=true
+and replace every placeholder before use.
+

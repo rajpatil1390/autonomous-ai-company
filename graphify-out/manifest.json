@@ -1,0 +1,182 @@
+{
+  "pyproject.toml": {
+    "mtime": 1784101436.5555708,
+    "ast_hash": "2e8d15c68a8d5cd1cb541d9b61d4e683",
+    "semantic_hash": "2e8d15c68a8d5cd1cb541d9b61d4e683"
+  },
+  "src/autonomous_ai_company/__init__.py": {
+    "mtime": 1784100116.9778275,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/autonomous_ai_company/agents/__init__.py": {
+    "mtime": 1784100116.9778275,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/autonomous_ai_company/agents/finance_agent.py": {
+    "mtime": 1784104938.2202575,
+    "ast_hash": "842b132e6b368235da57b4d5aedc7eed",
+    "semantic_hash": ""
+  },
+  "src/autonomous_ai_company/audit/__init__.py": {
+    "mtime": 1784100116.9778275,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/autonomous_ai_company/audit/audit_logger.py": {
+    "mtime": 1784104938.2202575,
+    "ast_hash": "126564776f0b9f4e0521ce6a0e21e6d6",
+    "semantic_hash": ""
+  },
+  "src/autonomous_ai_company/config.py": {
+    "mtime": 1784104938.2202575,
+    "ast_hash": "5d8fd188a15a6f3848c2de520a9f38b4",
+    "semantic_hash": ""
+  },
+  "src/autonomous_ai_company/llm/__init__.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/autonomous_ai_company/llm/claude_client.py": {
+    "mtime": 1784105640.4711707,
+    "ast_hash": "2e9135da6a15a0a30c2cdb9a61b5235f",
+    "semantic_hash": ""
+  },
+  "src/autonomous_ai_company/llm/llm_router.py": {
+    "mtime": 1784101676.1520672,
+    "ast_hash": "a18891d20434bb4d0e03c4f269ab6c03",
+    "semantic_hash": "a18891d20434bb4d0e03c4f269ab6c03"
+  },
+  "src/autonomous_ai_company/prompts/__init__.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/autonomous_ai_company/prompts/finance_prompt.py": {
+    "mtime": 1784104678.6758988,
+    "ast_hash": "113e068ccc497501458881456f309893",
+    "semantic_hash": ""
+  },
+  "src/autonomous_ai_company/schemas/__init__.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/autonomous_ai_company/schemas/agent_outputs.py": {
+    "mtime": 1784100670.7063994,
+    "ast_hash": "b5c3108d0b77dd48df8d5b70dbeb6ec6",
+    "semantic_hash": "b5c3108d0b77dd48df8d5b70dbeb6ec6"
+  },
+  "src/autonomous_ai_company/schemas/audit.py": {
+    "mtime": 1784102355.4405286,
+    "ast_hash": "626711e20d9ba117171b1afba2530073",
+    "semantic_hash": "626711e20d9ba117171b1afba2530073"
+  },
+  "src/autonomous_ai_company/tools/__init__.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "src/autonomous_ai_company/tools/finance_tools.py": {
+    "mtime": 1784104938.2202575,
+    "ast_hash": "0f250e9c841775808745c91447db8418",
+    "semantic_hash": ""
+  },
+  "tests/__init__.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/conftest.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/integration/__init__.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/integration/test_finance_agent.py": {
+    "mtime": 1784105045.2774985,
+    "ast_hash": "80c4d82d42559bf7bb1364752b4327d4",
+    "semantic_hash": ""
+  },
+  "tests/unit/__init__.py": {
+    "mtime": 1784100116.9798293,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/unit/test_audit_logger.py": {
+    "mtime": 1784105009.5882752,
+    "ast_hash": "f24d4777fe353e549c33081af757bdb2",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_audit_schema.py": {
+    "mtime": 1784102355.4405286,
+    "ast_hash": "ace3b1224ed1504a6022889a3b76cdda",
+    "semantic_hash": "ace3b1224ed1504a6022889a3b76cdda"
+  },
+  "tests/unit/test_claude_client.py": {
+    "mtime": 1784105640.4721744,
+    "ast_hash": "3240e36a48e00a2d17b2696730085b3a",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_config.py": {
+    "mtime": 1784105009.5872734,
+    "ast_hash": "41f71be871d13998ec9f6fc330e9cb06",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_finance_prompt.py": {
+    "mtime": 1784104678.6758988,
+    "ast_hash": "3abf3849ea8fe58115559bff4917c3b2",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_finance_tools.py": {
+    "mtime": 1784105009.5882752,
+    "ast_hash": "3f8c46462b12eeb52df339c1d018a0e8",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_llm_router.py": {
+    "mtime": 1784101676.1520672,
+    "ast_hash": "ea2962ba23105b42b206abeb27e63d02",
+    "semantic_hash": "ea2962ba23105b42b206abeb27e63d02"
+  },
+  "tests/unit/test_schemas.py": {
+    "mtime": 1784100670.7063994,
+    "ast_hash": "67466d850f5a5f7ef492e7ffb8186123",
+    "semantic_hash": "67466d850f5a5f7ef492e7ffb8186123"
+  },
+  "src/autonomous_ai_company/bootstrap.py": {
+    "mtime": 1784105640.4700153,
+    "ast_hash": "b38d86630e634aa81c595696c5200564",
+    "semantic_hash": ""
+  },
+  "src/autonomous_ai_company/exceptions.py": {
+    "mtime": 1784104938.2202575,
+    "ast_hash": "17eab5f5cdcef1781afad6ee77d7b655",
+    "semantic_hash": ""
+  },
+  "tests/integration/test_finance_pipeline.py": {
+    "mtime": 1784105962.7156937,
+    "ast_hash": "fc21f5d441ae9ab1f1ac2d8786d774df",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_bootstrap.py": {
+    "mtime": 1784105640.4711707,
+    "ast_hash": "2a8331abd8cd52775a980864f6327b1e",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_exceptions.py": {
+    "mtime": 1784105009.5862565,
+    "ast_hash": "764ca7de0a6b0c449869f81e8d7ef659",
+    "semantic_hash": ""
+  },
+  "CODEX.md": {
+    "mtime": 1784099823.5295382,
+    "ast_hash": "a7d2f2d9e2325979cd890698f15cd88c",
+    "semantic_hash": ""
+  }
+}

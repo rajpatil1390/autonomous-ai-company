@@ -1,0 +1,541 @@
+{
+  "communities": {
+    "0": [
+      "src_autonomous_ai_company_tools_finance_tools",
+      "src_autonomous_ai_company_tools_finance_tools_average_order_value",
+      "src_autonomous_ai_company_tools_finance_tools_calculate_kpis",
+      "src_autonomous_ai_company_tools_finance_tools_financekpis",
+      "src_autonomous_ai_company_tools_finance_tools_profit_margin",
+      "src_autonomous_ai_company_tools_finance_tools_py_financialdataset",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_1",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_107",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_126",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_146",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_17",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_31",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_66",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_76",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_86",
+      "src_autonomous_ai_company_tools_finance_tools_rationale_96",
+      "src_autonomous_ai_company_tools_finance_tools_revenue_growth_rate",
+      "src_autonomous_ai_company_tools_finance_tools_total_cost",
+      "src_autonomous_ai_company_tools_finance_tools_total_profit",
+      "src_autonomous_ai_company_tools_finance_tools_total_revenue",
+      "src_autonomous_ai_company_tools_finance_tools_validated_column_values",
+      "tests_unit_test_finance_tools",
+      "tests_unit_test_finance_tools_py_exception",
+      "tests_unit_test_finance_tools_py_financialdataset",
+      "tests_unit_test_finance_tools_rationale_1",
+      "tests_unit_test_finance_tools_rationale_120",
+      "tests_unit_test_finance_tools_rationale_127",
+      "tests_unit_test_finance_tools_rationale_134",
+      "tests_unit_test_finance_tools_rationale_141",
+      "tests_unit_test_finance_tools_rationale_151",
+      "tests_unit_test_finance_tools_rationale_161",
+      "tests_unit_test_finance_tools_rationale_30",
+      "tests_unit_test_finance_tools_rationale_41",
+      "tests_unit_test_finance_tools_rationale_66",
+      "tests_unit_test_finance_tools_rationale_73",
+      "tests_unit_test_finance_tools_rationale_98",
+      "tests_unit_test_finance_tools_test_calculate_kpis_returns_complete_python_dictionary",
+      "tests_unit_test_finance_tools_test_calculations_reject_missing_columns",
+      "tests_unit_test_finance_tools_test_cost_validation_rejects_invalid_data",
+      "tests_unit_test_finance_tools_test_growth_and_aggregate_reject_empty_datasets",
+      "tests_unit_test_finance_tools_test_growth_rate_rejects_zero_previous_revenue",
+      "tests_unit_test_finance_tools_test_individual_kpis_return_expected_values",
+      "tests_unit_test_finance_tools_test_negative_profit_is_allowed_for_a_loss",
+      "tests_unit_test_finance_tools_test_profit_margin_rejects_zero_revenue",
+      "tests_unit_test_finance_tools_test_revenue_validation_rejects_invalid_data",
+      "tests_unit_test_finance_tools_test_single_period_calculations_reject_empty_dataset",
+      "tests_unit_test_finance_tools_test_source_financial_values_must_not_be_negative",
+      "typeddict"
+    ],
+    "1": [
+      "logcapturefixture",
+      "providerfactory",
+      "runtimeerror",
+      "src_autonomous_ai_company_llm_claude_client",
+      "src_autonomous_ai_company_llm_claude_client_claudeclient",
+      "src_autonomous_ai_company_llm_claude_client_claudeclient_generate",
+      "src_autonomous_ai_company_llm_claude_client_claudeclient_init",
+      "src_autonomous_ai_company_llm_claude_client_rationale_1",
+      "src_autonomous_ai_company_llm_claude_client_rationale_19",
+      "src_autonomous_ai_company_llm_claude_client_rationale_27",
+      "src_autonomous_ai_company_llm_claude_client_rationale_69",
+      "src_autonomous_ai_company_llm_llm_router_llmrouter_init",
+      "src_autonomous_ai_company_llm_llm_router_rationale_52",
+      "tests_unit_test_claude_client",
+      "tests_unit_test_claude_client_rationale_1",
+      "tests_unit_test_claude_client_rationale_126",
+      "tests_unit_test_claude_client_rationale_16",
+      "tests_unit_test_claude_client_rationale_184",
+      "tests_unit_test_claude_client_rationale_208",
+      "tests_unit_test_claude_client_rationale_240",
+      "tests_unit_test_claude_client_rationale_28",
+      "tests_unit_test_claude_client_rationale_41",
+      "tests_unit_test_claude_client_rationale_67",
+      "tests_unit_test_claude_client_rationale_88",
+      "tests_unit_test_claude_client_rationale_98",
+      "tests_unit_test_claude_client_sdk_client",
+      "tests_unit_test_claude_client_settings",
+      "tests_unit_test_claude_client_test_constructor_loads_configuration_and_initializes_sdk",
+      "tests_unit_test_claude_client_test_constructor_rejects_non_positive_timeout",
+      "tests_unit_test_claude_client_test_constructor_uses_sdk_default_timeout_when_not_overridden",
+      "tests_unit_test_claude_client_test_generate_logs_and_propagates_sdk_error",
+      "tests_unit_test_claude_client_test_generate_rejects_invalid_arguments",
+      "tests_unit_test_claude_client_test_generate_rejects_response_without_text",
+      "tests_unit_test_claude_client_test_generate_uses_configured_request_defaults",
+      "tests_unit_test_claude_client_test_generate_uses_system_prompt_and_request_overrides"
+    ],
+    "2": [
+      "src_autonomous_ai_company_agents_finance_agent",
+      "src_autonomous_ai_company_agents_finance_agent_build_error_correction_prompt",
+      "src_autonomous_ai_company_agents_finance_agent_financeagent",
+      "src_autonomous_ai_company_agents_finance_agent_financeagent_init",
+      "src_autonomous_ai_company_agents_finance_agent_financeagent_run",
+      "src_autonomous_ai_company_agents_finance_agent_financeagentvalidationerror",
+      "src_autonomous_ai_company_agents_finance_agent_py_financialdataset",
+      "src_autonomous_ai_company_agents_finance_agent_rationale_1",
+      "src_autonomous_ai_company_agents_finance_agent_rationale_26",
+      "src_autonomous_ai_company_agents_finance_agent_rationale_34",
+      "src_autonomous_ai_company_agents_finance_agent_rationale_70",
+      "src_autonomous_ai_company_agents_finance_agent_rationale_82",
+      "src_autonomous_ai_company_agents_finance_agent_rationale_95",
+      "src_autonomous_ai_company_llm_llm_router_llmprovider",
+      "src_autonomous_ai_company_llm_llm_router_llmprovider_generate",
+      "src_autonomous_ai_company_llm_llm_router_py_protocol",
+      "src_autonomous_ai_company_llm_llm_router_rationale_18",
+      "src_autonomous_ai_company_llm_llm_router_rationale_31",
+      "src_autonomous_ai_company_schemas_agent_outputs_financeagentoutput",
+      "src_autonomous_ai_company_schemas_agent_outputs_rationale_27",
+      "tests_integration_test_finance_agent",
+      "tests_integration_test_finance_agent_event_signature",
+      "tests_integration_test_finance_agent_rationale_1",
+      "tests_integration_test_finance_agent_rationale_123",
+      "tests_integration_test_finance_agent_rationale_185",
+      "tests_integration_test_finance_agent_rationale_245",
+      "tests_integration_test_finance_agent_rationale_45",
+      "tests_integration_test_finance_agent_rationale_57",
+      "tests_integration_test_finance_agent_rationale_63",
+      "tests_integration_test_finance_agent_test_invalid_first_response_builds_correction_and_retries_once",
+      "tests_integration_test_finance_agent_test_second_invalid_response_raises_custom_error_without_third_call",
+      "tests_integration_test_finance_agent_test_successful_execution_coordinates_every_existing_component",
+      "tests_integration_test_finance_agent_test_tool_exception_is_audited_once_and_propagated",
+      "tests_integration_test_finance_agent_valid_output",
+      "validationerror"
+    ],
+    "3": [
+      "src_autonomous_ai_company_llm_llm_router",
+      "src_autonomous_ai_company_llm_llm_router_llmrouter",
+      "src_autonomous_ai_company_llm_llm_router_llmrouter_generate",
+      "src_autonomous_ai_company_llm_llm_router_llmrouter_get_provider",
+      "src_autonomous_ai_company_llm_llm_router_rationale_1",
+      "src_autonomous_ai_company_llm_llm_router_rationale_101",
+      "src_autonomous_ai_company_llm_llm_router_rationale_40",
+      "src_autonomous_ai_company_llm_llm_router_rationale_86",
+      "tests_unit_test_llm_router",
+      "tests_unit_test_llm_router_rationale_1",
+      "tests_unit_test_llm_router_rationale_111",
+      "tests_unit_test_llm_router_rationale_14",
+      "tests_unit_test_llm_router_rationale_29",
+      "tests_unit_test_llm_router_rationale_45",
+      "tests_unit_test_llm_router_rationale_52",
+      "tests_unit_test_llm_router_rationale_59",
+      "tests_unit_test_llm_router_rationale_66",
+      "tests_unit_test_llm_router_rationale_86",
+      "tests_unit_test_llm_router_test_router_forwards_all_request_overrides_unchanged",
+      "tests_unit_test_llm_router_test_router_forwards_default_request_arguments_unchanged",
+      "tests_unit_test_llm_router_test_router_propagates_provider_exception_unchanged",
+      "tests_unit_test_llm_router_test_router_rejects_invalid_provider_name",
+      "tests_unit_test_llm_router_test_router_rejects_unsupported_provider",
+      "tests_unit_test_llm_router_test_router_reports_when_injected_registry_is_empty",
+      "tests_unit_test_llm_router_test_router_selects_mocked_claude_provider_by_default",
+      "tests_unit_test_llm_router_test_router_uses_injected_factory_and_normalizes_provider_name"
+    ],
+    "4": [
+      "basesettings",
+      "monkeypatch",
+      "src_autonomous_ai_company_config",
+      "src_autonomous_ai_company_config_get_settings",
+      "src_autonomous_ai_company_config_rationale_1",
+      "src_autonomous_ai_company_config_rationale_15",
+      "src_autonomous_ai_company_config_rationale_62",
+      "src_autonomous_ai_company_config_settings",
+      "tests_unit_test_config",
+      "tests_unit_test_config_isolated_environment",
+      "tests_unit_test_config_rationale_1",
+      "tests_unit_test_config_rationale_101",
+      "tests_unit_test_config_rationale_113",
+      "tests_unit_test_config_rationale_30",
+      "tests_unit_test_config_rationale_42",
+      "tests_unit_test_config_rationale_51",
+      "tests_unit_test_config_rationale_67",
+      "tests_unit_test_config_rationale_89",
+      "tests_unit_test_config_set_valid_environment",
+      "tests_unit_test_config_test_api_key_is_hidden_from_settings_representation",
+      "tests_unit_test_config_test_get_settings_returns_the_cached_instance",
+      "tests_unit_test_config_test_settings_loads_and_converts_environment_values",
+      "tests_unit_test_config_test_settings_rejects_invalid_values",
+      "tests_unit_test_config_test_settings_requires_every_configuration_value"
+    ],
+    "5": [
+      "tests_unit_test_audit_schema",
+      "tests_unit_test_audit_schema_rationale_1",
+      "tests_unit_test_audit_schema_rationale_121",
+      "tests_unit_test_audit_schema_rationale_142",
+      "tests_unit_test_audit_schema_rationale_152",
+      "tests_unit_test_audit_schema_rationale_16",
+      "tests_unit_test_audit_schema_rationale_161",
+      "tests_unit_test_audit_schema_rationale_29",
+      "tests_unit_test_audit_schema_rationale_48",
+      "tests_unit_test_audit_schema_rationale_61",
+      "tests_unit_test_audit_schema_rationale_72",
+      "tests_unit_test_audit_schema_rationale_82",
+      "tests_unit_test_audit_schema_rationale_92",
+      "tests_unit_test_audit_schema_test_audit_event_accepts_valid_data_and_serializes_to_json",
+      "tests_unit_test_audit_schema_test_audit_event_allows_omitted_metadata",
+      "tests_unit_test_audit_schema_test_audit_event_rejects_blank_identifiers",
+      "tests_unit_test_audit_schema_test_audit_event_rejects_extra_fields_and_is_immutable",
+      "tests_unit_test_audit_schema_test_audit_event_rejects_invalid_field_data",
+      "tests_unit_test_audit_schema_test_audit_event_rejects_missing_required_fields",
+      "tests_unit_test_audit_schema_test_audit_event_rejects_naive_timestamp",
+      "tests_unit_test_audit_schema_test_audit_event_rejects_non_finite_nested_numbers",
+      "tests_unit_test_audit_schema_test_audit_event_rejects_non_utc_timestamp",
+      "tests_unit_test_audit_schema_test_schema_accepts_every_controlled_event_type",
+      "tests_unit_test_audit_schema_valid_event_data"
+    ],
+    "6": [
+      "src_autonomous_ai_company_prompts_finance_prompt",
+      "src_autonomous_ai_company_prompts_finance_prompt_build_finance_prompt",
+      "src_autonomous_ai_company_prompts_finance_prompt_rationale_1",
+      "src_autonomous_ai_company_prompts_finance_prompt_rationale_22",
+      "tests_unit_test_finance_prompt",
+      "tests_unit_test_finance_prompt_py_exception",
+      "tests_unit_test_finance_prompt_rationale_1",
+      "tests_unit_test_finance_prompt_rationale_116",
+      "tests_unit_test_finance_prompt_rationale_137",
+      "tests_unit_test_finance_prompt_rationale_20",
+      "tests_unit_test_finance_prompt_rationale_45",
+      "tests_unit_test_finance_prompt_rationale_58",
+      "tests_unit_test_finance_prompt_rationale_66",
+      "tests_unit_test_finance_prompt_rationale_95",
+      "tests_unit_test_finance_prompt_test_prompt_contains_inputs_guardrails_tasks_and_schema",
+      "tests_unit_test_finance_prompt_test_prompt_explains_when_user_question_is_omitted",
+      "tests_unit_test_finance_prompt_test_prompt_includes_optional_user_question",
+      "tests_unit_test_finance_prompt_test_prompt_is_deterministic_for_different_mapping_order",
+      "tests_unit_test_finance_prompt_test_prompt_rejects_invalid_business_context",
+      "tests_unit_test_finance_prompt_test_prompt_rejects_invalid_kpi_data",
+      "tests_unit_test_finance_prompt_test_prompt_rejects_invalid_optional_question"
+    ],
+    "7": [
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_log",
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_log_error",
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_log_finish",
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_log_llm_request",
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_log_llm_response",
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_log_start",
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_log_tool_call",
+      "src_autonomous_ai_company_audit_audit_logger_inmemoryauditstorage_append",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_169",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_194",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_207",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_220",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_233",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_246",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_259",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_65",
+      "src_autonomous_ai_company_schemas_audit_auditevent",
+      "src_autonomous_ai_company_schemas_audit_py_basemodel",
+      "src_autonomous_ai_company_schemas_audit_rationale_41"
+    ],
+    "8": [
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_144",
+      "tests_unit_test_audit_logger",
+      "tests_unit_test_audit_logger_rationale_1",
+      "tests_unit_test_audit_logger_rationale_143",
+      "tests_unit_test_audit_logger_rationale_156",
+      "tests_unit_test_audit_logger_rationale_169",
+      "tests_unit_test_audit_logger_rationale_182",
+      "tests_unit_test_audit_logger_rationale_215",
+      "tests_unit_test_audit_logger_rationale_58",
+      "tests_unit_test_audit_logger_rationale_77",
+      "tests_unit_test_audit_logger_test_logger_is_thread_safe_without_losing_events",
+      "tests_unit_test_audit_logger_test_logger_preserves_safe_payload_and_optional_metadata",
+      "tests_unit_test_audit_logger_test_logger_propagates_schema_validation_errors",
+      "tests_unit_test_audit_logger_test_logger_recursively_redacts_secrets_and_raw_prompts",
+      "tests_unit_test_audit_logger_test_logger_rejects_non_mapping_payload",
+      "tests_unit_test_audit_logger_test_logger_rejects_non_string_payload_keys",
+      "tests_unit_test_audit_logger_test_logger_uses_injected_storage_interface"
+    ],
+    "9": [
+      "src_autonomous_ai_company_audit_audit_logger",
+      "src_autonomous_ai_company_audit_audit_logger_is_sensitive_key",
+      "src_autonomous_ai_company_audit_audit_logger_looks_like_credential",
+      "src_autonomous_ai_company_audit_audit_logger_normalized_key",
+      "src_autonomous_ai_company_audit_audit_logger_py_datetime",
+      "src_autonomous_ai_company_audit_audit_logger_py_jsonvalue",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_1",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_114",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_128",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_78",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_84",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_90",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_99",
+      "src_autonomous_ai_company_audit_audit_logger_sanitize_mapping",
+      "src_autonomous_ai_company_audit_audit_logger_sanitize_value",
+      "src_autonomous_ai_company_audit_audit_logger_utc_now"
+    ],
+    "10": [
+      "src_autonomous_ai_company_schemas_agent_outputs",
+      "src_autonomous_ai_company_schemas_agent_outputs_agentoutputmodel",
+      "src_autonomous_ai_company_schemas_agent_outputs_ceoagentoutput",
+      "src_autonomous_ai_company_schemas_agent_outputs_datascientistagentoutput",
+      "src_autonomous_ai_company_schemas_agent_outputs_marketingagentoutput",
+      "src_autonomous_ai_company_schemas_agent_outputs_py_basemodel",
+      "src_autonomous_ai_company_schemas_agent_outputs_rationale_1",
+      "src_autonomous_ai_company_schemas_agent_outputs_rationale_119",
+      "src_autonomous_ai_company_schemas_agent_outputs_rationale_13",
+      "src_autonomous_ai_company_schemas_agent_outputs_rationale_148",
+      "src_autonomous_ai_company_schemas_agent_outputs_rationale_56",
+      "src_autonomous_ai_company_schemas_agent_outputs_rationale_86",
+      "src_autonomous_ai_company_schemas_agent_outputs_reportagentoutput"
+    ],
+    "11": [
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_get_events",
+      "src_autonomous_ai_company_audit_audit_logger_auditlogger_init",
+      "src_autonomous_ai_company_audit_audit_logger_inmemoryauditstorage",
+      "src_autonomous_ai_company_audit_audit_logger_inmemoryauditstorage_init",
+      "src_autonomous_ai_company_audit_audit_logger_inmemoryauditstorage_snapshot",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_155",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_266",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_56",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_59",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_71",
+      "tests_unit_test_audit_logger_rationale_196",
+      "tests_unit_test_audit_logger_test_in_memory_storage_returns_immutable_snapshot"
+    ],
+    "12": [
+      "tests_unit_test_schemas",
+      "tests_unit_test_schemas_py_basemodel",
+      "tests_unit_test_schemas_rationale_1",
+      "tests_unit_test_schemas_rationale_109",
+      "tests_unit_test_schemas_rationale_128",
+      "tests_unit_test_schemas_rationale_143",
+      "tests_unit_test_schemas_rationale_92",
+      "tests_unit_test_schemas_test_agent_output_accepts_valid_data_and_serializes_to_json",
+      "tests_unit_test_schemas_test_agent_output_rejects_invalid_field_type",
+      "tests_unit_test_schemas_test_agent_output_rejects_missing_required_field",
+      "tests_unit_test_schemas_test_every_schema_field_has_a_description"
+    ],
+    "13": [
+      "src_autonomous_ai_company_schemas_audit",
+      "src_autonomous_ai_company_schemas_audit_auditevent_require_finite_json",
+      "src_autonomous_ai_company_schemas_audit_auditevent_require_utc_timestamp",
+      "src_autonomous_ai_company_schemas_audit_ensure_finite_json",
+      "src_autonomous_ai_company_schemas_audit_py_datetime",
+      "src_autonomous_ai_company_schemas_audit_py_jsonvalue",
+      "src_autonomous_ai_company_schemas_audit_rationale_1",
+      "src_autonomous_ai_company_schemas_audit_rationale_27",
+      "src_autonomous_ai_company_schemas_audit_rationale_79",
+      "src_autonomous_ai_company_schemas_audit_rationale_93"
+    ],
+    "14": [
+      "src_autonomous_ai_company_audit_audit_logger_auditstorage",
+      "src_autonomous_ai_company_audit_audit_logger_auditstorage_append",
+      "src_autonomous_ai_company_audit_audit_logger_auditstorage_snapshot",
+      "src_autonomous_ai_company_audit_audit_logger_py_protocol",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_38",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_45",
+      "src_autonomous_ai_company_audit_audit_logger_rationale_50"
+    ],
+    "15": [
+      "src_autonomous_ai_company_schemas_audit_auditeventtype",
+      "src_autonomous_ai_company_schemas_audit_rationale_16",
+      "strenum",
+      "tests_unit_test_audit_logger_incrementing_clock",
+      "tests_unit_test_audit_logger_rationale_23",
+      "tests_unit_test_audit_logger_rationale_30",
+      "tests_unit_test_audit_logger_test_logger_records_every_event_type_in_order_with_utc_timestamps"
+    ],
+    "16": [
+      "pkg_autonomous_ai_company"
+    ],
+    "17": [
+      "src_autonomous_ai_company_agents_init"
+    ],
+    "18": [
+      "src_autonomous_ai_company_audit_init"
+    ],
+    "19": [
+      "src_autonomous_ai_company_init"
+    ],
+    "20": [
+      "src_autonomous_ai_company_llm_init"
+    ],
+    "21": [
+      "src_autonomous_ai_company_prompts_init"
+    ],
+    "22": [
+      "src_autonomous_ai_company_schemas_init"
+    ],
+    "23": [
+      "src_autonomous_ai_company_tools_init"
+    ],
+    "24": [
+      "tests_conftest"
+    ],
+    "25": [
+      "tests_init"
+    ],
+    "26": [
+      "tests_integration_init"
+    ],
+    "27": [
+      "tests_unit_init"
+    ]
+  },
+  "cohesion": {
+    "0": 0.07624113475177305,
+    "1": 0.07058823529411765,
+    "2": 0.09411764705882353,
+    "3": 0.09846153846153846,
+    "4": 0.14492753623188406,
+    "5": 0.11956521739130435,
+    "6": 0.13333333333333333,
+    "7": 0.14619883040935672,
+    "8": 0.1503267973856209,
+    "9": 0.175,
+    "10": 0.20512820512820512,
+    "11": 0.16666666666666666,
+    "12": 0.23636363636363636,
+    "13": 0.2222222222222222,
+    "14": 0.2857142857142857,
+    "15": 0.2857142857142857,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0
+  },
+  "gods": [
+    {
+      "id": "src_autonomous_ai_company_audit_audit_logger_auditlogger",
+      "label": "AuditLogger",
+      "degree": 28
+    },
+    {
+      "id": "src_autonomous_ai_company_schemas_audit_auditevent",
+      "label": "AuditEvent",
+      "degree": 22
+    },
+    {
+      "id": "src_autonomous_ai_company_llm_claude_client_claudeclient",
+      "label": "ClaudeClient",
+      "degree": 15
+    },
+    {
+      "id": "src_autonomous_ai_company_llm_llm_router_llmrouter",
+      "label": "LLMRouter",
+      "degree": 14
+    },
+    {
+      "id": "src_autonomous_ai_company_llm_llm_router_llmprovider",
+      "label": "LLMProvider",
+      "degree": 13
+    },
+    {
+      "id": "src_autonomous_ai_company_tools_finance_tools_calculate_kpis",
+      "label": "calculate_kpis()",
+      "degree": 13
+    },
+    {
+      "id": "src_autonomous_ai_company_tools_finance_tools_total_revenue",
+      "label": "total_revenue()",
+      "degree": 12
+    },
+    {
+      "id": "tests_unit_test_audit_schema_valid_event_data",
+      "label": "valid_event_data()",
+      "degree": 12
+    },
+    {
+      "id": "src_autonomous_ai_company_agents_finance_agent_financeagent",
+      "label": "FinanceAgent",
+      "degree": 11
+    },
+    {
+      "id": "src_autonomous_ai_company_prompts_finance_prompt_build_finance_prompt",
+      "label": "build_finance_prompt()",
+      "degree": 10
+    }
+  ],
+  "surprises": [
+    {
+      "source": "test_logger_uses_injected_storage_interface()",
+      "target": "AuditStorage",
+      "source_files": [
+        "tests/unit/test_audit_logger.py",
+        "src/autonomous_ai_company/audit/audit_logger.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "indirect_call",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "test_invalid_first_response_builds_correction_and_retries_once()",
+      "target": "AuditLogger",
+      "source_files": [
+        "tests/integration/test_finance_agent.py",
+        "src/autonomous_ai_company/audit/audit_logger.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "test_second_invalid_response_raises_custom_error_without_third_call()",
+      "target": "AuditLogger",
+      "source_files": [
+        "tests/integration/test_finance_agent.py",
+        "src/autonomous_ai_company/audit/audit_logger.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "test_successful_execution_coordinates_every_existing_component()",
+      "target": "AuditLogger",
+      "source_files": [
+        "tests/integration/test_finance_agent.py",
+        "src/autonomous_ai_company/audit/audit_logger.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "test_tool_exception_is_audited_once_and_propagated()",
+      "target": "AuditLogger",
+      "source_files": [
+        "tests/integration/test_finance_agent.py",
+        "src/autonomous_ai_company/audit/audit_logger.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

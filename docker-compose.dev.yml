@@ -1,0 +1,26 @@
+services:
+  api:
+    build:
+      target: development
+    environment:
+      APP_WORKERS: "1"
+      LOG_LEVEL: "DEBUG"
+      UVICORN_LOG_LEVEL: "debug"
+      PYTHONPATH: /app/src
+    volumes:
+      - ./src:/app/src:ro
+    command:
+      - sh
+      - -c
+      - >-
+        exec uvicorn autonomous_ai_company.api.app:create_app
+        --factory
+        --host "$${APP_HOST}"
+        --port "$${APP_PORT}"
+        --reload
+        --reload-dir /app/src
+        --log-level "$${UVICORN_LOG_LEVEL}"
+
+  postgres:
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"

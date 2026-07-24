@@ -1,0 +1,140 @@
+name: SRE Operations Asset Validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sre-operations-asset-validation
+  cancel-in-progress: true
+
+jobs:
+  validate-alertmanager:
+    name: Validate Alertmanager configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install YAML parser
+        run: python -m pip install "PyYAML==6.0.3"
+
+      - name: Validate routing and inhibition contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          import yaml
+
+          path = Path("operations/alertmanager/alertmanager.yml")
+          config = yaml.safe_load(path.read_text(encoding="utf-8"))
+          receivers = {receiver["name"] for receiver in config["receivers"]}
+          assert receivers == {
+              "default-placeholder",
+              "warning-placeholder",
+              "critical-placeholder",
+          }
+          assert all(set(receiver) == {"name"} for receiver in config["receivers"])
+          route = config["route"]
+          assert route["receiver"] == "default-placeholder"
+          assert route["group_by"] == ["alertname", "namespace", "service"]
+          routes = {item["matchers"][0]: item for item in route["routes"]}
+          assert routes['severity="warning"']["receiver"] == "warning-placeholder"
+          assert routes['severity="critical"']["receiver"] == "critical-placeholder"
+          assert len(config["inhibit_rules"]) >= 2
+          PY
+
+  validate-documentation:
+    name: Validate SRE documentation
+    needs: validate-alertmanager
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Validate SLO, runbook, and on-call completeness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          runbook_headings = (
+              "Symptoms",
+              "Diagnosis",
+              "Dashboards",
+              "Metrics",
+              "Logs",
+              "Recovery",
+              "Escalation",
+              "Rollback",
+              "Verification",
+          )
+          runbooks = sorted(Path("operations/runbooks").glob("*.md"))
+          assert len(runbooks) == 6
+          for path in runbooks:
+              text = path.read_text(encoding="utf-8")
+              for heading in runbook_headings:
+                  assert f"## {heading}" in text
+
+          slos = Path("operations/slo/slos.md").read_text(encoding="utf-8")
+          for objective in (
+              "API availability",
+              "Workflow success rate",
+              "Authentication reliability",
+              "Audit persistence",
+              "LLM latency",
+              "Streaming reliability",
+          ):
+              assert objective in slos
+
+          required_oncall_sections = {
+              "escalation-policy.md": ("Incident Severity Matrix", "Escalation Flow"),
+              "incident-template.md": ("Incident Metadata", "Communication Template"),
+              "postmortem-template.md": ("Root Cause", "Corrective Actions"),
+          }
+          for name, sections in required_oncall_sections.items():
+              text = (Path("operations/oncall") / name).read_text(encoding="utf-8")
+              assert all(section in text for section in sections)
+          PY
+
+  upload-artifacts:
+    name: Upload validated SRE assets
+    needs:
+      - validate-alertmanager
+      - validate-documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Upload operations configuration and documentation
+        uses: actions/upload-artifact@v6
+        with:
+          name: validated-sre-operations-assets
+          path: |
+            operations/alertmanager/*.yml
+            operations/alertmanager/*.md
+            operations/slo/*.md
+            operations/runbooks/*.md
+            operations/oncall/*.md
+          if-no-files-found: error
+          retention-days: 30

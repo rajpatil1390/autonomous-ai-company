@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  tag: local
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+
+config:
+  LOG_LEVEL: DEBUG
+  APP_WORKERS: "1"
+

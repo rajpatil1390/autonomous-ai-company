@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-audit-data
+  namespace: autonomous-ai-company
+  labels:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/component: audit-storage
+    app.kubernetes.io/part-of: autonomous-ai-company
+  annotations:
+    autonomous-ai-company.example/purpose: PostgreSQL append-only audit storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  volumeMode: Filesystem

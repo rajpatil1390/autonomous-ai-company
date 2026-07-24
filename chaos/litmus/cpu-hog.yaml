@@ -1,0 +1,38 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: autonomous-ai-company-api-cpu-hog
+  namespace: autonomous-ai-company
+  labels:
+    app.kubernetes.io/name: autonomous-ai-company
+    app.kubernetes.io/component: chaos
+    chaos.autonomous-ai-company.io/scenario: cpu-saturation
+  annotations:
+    chaos.autonomous-ai-company.io/safety-state: stopped
+spec:
+  engineState: stop
+  annotationCheck: "true"
+  appinfo:
+    appns: autonomous-ai-company
+    applabel: app.kubernetes.io/name=autonomous-ai-company,app.kubernetes.io/component=api
+    appkind: deployment
+  chaosServiceAccount: litmus-chaos-runner
+  jobCleanUpPolicy: retain
+  experiments:
+    - name: pod-cpu-hog
+      spec:
+        components:
+          env:
+            - name: TARGET_CONTAINER
+              value: api
+            - name: CPU_CORES
+              value: "2"
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            - name: SEQUENCE
+              value: serial
+            - name: RAMP_TIME
+              value: "15"
+

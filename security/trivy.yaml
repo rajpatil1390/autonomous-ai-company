@@ -1,0 +1,20 @@
+# Shared Trivy policy for repository and container-image scans.
+exit-code: 1
+format: json
+ignore-unfixed: true
+severity:
+  - HIGH
+  - CRITICAL
+scanners:
+  - vuln
+  - secret
+  - misconfig
+skip-dirs:
+  - .git
+  - .venv
+  - artifacts
+  - htmlcov
+  - reports
+  - test-results
+timeout: 10m
+

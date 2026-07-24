@@ -1,0 +1,40 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: autonomous-ai-company-api-memory-hog
+  namespace: autonomous-ai-company
+  labels:
+    app.kubernetes.io/name: autonomous-ai-company
+    app.kubernetes.io/component: chaos
+    chaos.autonomous-ai-company.io/scenario: memory-pressure
+  annotations:
+    chaos.autonomous-ai-company.io/safety-state: stopped
+spec:
+  engineState: stop
+  annotationCheck: "true"
+  appinfo:
+    appns: autonomous-ai-company
+    applabel: app.kubernetes.io/name=autonomous-ai-company,app.kubernetes.io/component=api
+    appkind: deployment
+  chaosServiceAccount: litmus-chaos-runner
+  jobCleanUpPolicy: retain
+  experiments:
+    - name: pod-memory-hog
+      spec:
+        components:
+          env:
+            - name: TARGET_CONTAINER
+              value: api
+            - name: MEMORY_CONSUMPTION
+              value: "1800"
+            - name: NUMBER_OF_WORKERS
+              value: "1"
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            - name: SEQUENCE
+              value: serial
+            - name: RAMP_TIME
+              value: "15"
+

@@ -1,0 +1,118 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: autonomous-ai-company-postgres-restore-template
+  namespace: autonomous-ai-company
+  labels:
+    app.kubernetes.io/name: autonomous-ai-company
+    app.kubernetes.io/component: disaster-recovery
+  annotations:
+    dr.autonomous-ai-company.io/safety-state: disabled-manual-template
+spec:
+  # This checked-in Job is a manual template. Clone it to a unique reviewed name,
+  # set the confirmation values, and unsuspend only during an approved recovery.
+  suspend: true
+  parallelism: 1
+  completions: 1
+  backoffLimit: 0
+  activeDeadlineSeconds: 7200
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: autonomous-ai-company
+        app.kubernetes.io/component: disaster-recovery
+        dr.autonomous-ai-company.io/task: postgres-restore
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres-restore
+          image: REPLACE_WITH_PINNED_BACKUP_IMAGE
+          imagePullPolicy: IfNotPresent
+          command:
+            - /opt/dr/postgres-restore.sh
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: autonomous-ai-company-dr-config
+                  key: RESTORE_POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: autonomous-ai-company-dr-config
+                  key: POSTGRES_PORT
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: autonomous-ai-company-dr-config
+                  key: RESTORE_POSTGRES_DATABASE
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: autonomous-ai-company-dr-config
+                  key: RESTORE_POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: autonomous-ai-company-dr-secrets
+                  key: RESTORE_POSTGRES_PASSWORD
+            - name: BACKUP_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: autonomous-ai-company-dr-config
+                  key: RESTORE_BACKUP_FILE
+            - name: CHECKSUM_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: autonomous-ai-company-dr-config
+                  key: RESTORE_CHECKSUM_FILE
+            - name: BACKUP_DECRYPTION_PROGRAM
+              valueFrom:
+                configMapKeyRef:
+                  name: autonomous-ai-company-dr-config
+                  key: BACKUP_DECRYPTION_PROGRAM
+            - name: RESTORE_WORK_DIR
+              value: /restore-work
+            - name: RESTORE_CONFIRM_DATABASE
+              value: DISABLED
+            - name: ALLOW_POSTGRES_RESTORE
+              value: DISABLED
+            - name: PGCONNECT_TIMEOUT
+              value: "10"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+              readOnly: true
+            - name: restore-work
+              mountPath: /restore-work
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: REPLACE_WITH_BACKUP_PVC_NAME
+        - name: restore-work
+          emptyDir:
+            sizeLimit: 4Gi
+

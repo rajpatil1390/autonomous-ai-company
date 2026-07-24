@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: autonomous-ai-company
+    metrics_path: /metrics
+    scheme: http
+    honor_labels: false
+    static_configs:
+      - targets:
+          - host.docker.internal:8000
+        labels:
+          service: autonomous-ai-company

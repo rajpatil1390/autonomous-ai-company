@@ -1,0 +1,46 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: autonomous-ai-company-postgres-network-delay
+  namespace: autonomous-ai-company
+  labels:
+    app.kubernetes.io/name: autonomous-ai-company
+    app.kubernetes.io/component: chaos
+    chaos.autonomous-ai-company.io/scenario: postgres-network-delay
+  annotations:
+    chaos.autonomous-ai-company.io/safety-state: stopped
+spec:
+  engineState: stop
+  annotationCheck: "true"
+  appinfo:
+    appns: autonomous-ai-company
+    applabel: app.kubernetes.io/name=autonomous-ai-company,app.kubernetes.io/component=api
+    appkind: deployment
+  chaosServiceAccount: litmus-chaos-runner
+  jobCleanUpPolicy: retain
+  experiments:
+    - name: pod-network-latency
+      spec:
+        components:
+          env:
+            - name: TARGET_CONTAINER
+              value: api
+            - name: DESTINATION_HOSTS
+              value: postgresql.autonomous-ai-company.svc.cluster.local
+            - name: DESTINATION_PORTS
+              value: "5432"
+            - name: NETWORK_LATENCY
+              value: "500"
+            - name: JITTER
+              value: "100"
+            - name: NETWORK_INTERFACE
+              value: eth0
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            - name: SEQUENCE
+              value: serial
+            - name: RAMP_TIME
+              value: "15"
+

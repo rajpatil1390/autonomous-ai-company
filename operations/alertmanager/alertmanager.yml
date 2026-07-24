@@ -1,0 +1,53 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: default-placeholder
+  group_by:
+    - alertname
+    - namespace
+    - service
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - receiver: critical-placeholder
+      matchers:
+        - severity="critical"
+      group_wait: 10s
+      group_interval: 2m
+      repeat_interval: 30m
+      continue: false
+    - receiver: warning-placeholder
+      matchers:
+        - severity="warning"
+      group_wait: 1m
+      group_interval: 10m
+      repeat_interval: 4h
+      continue: false
+
+inhibit_rules:
+  - source_matchers:
+      - severity="critical"
+    target_matchers:
+      - severity="warning"
+    equal:
+      - alertname
+      - namespace
+      - service
+  - source_matchers:
+      - alertname="APIUnavailable"
+      - severity="critical"
+    target_matchers:
+      - severity=~"warning|critical"
+    equal:
+      - namespace
+      - service
+
+receivers:
+  # Deliberately empty placeholders. Add integrations only through a separately
+  # reviewed secret-injection mechanism; never commit endpoint credentials here.
+  - name: default-placeholder
+  - name: warning-placeholder
+  - name: critical-placeholder
+
